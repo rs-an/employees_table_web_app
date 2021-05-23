@@ -1,7 +1,7 @@
 
 CREATE DATABASE employeeDB;
 
-CREATE USER 'user'@'localhost' IDENTIFIED BY 'user';
+CREATE USER 'angelina'@'localhost' IDENTIFIED BY '12345test';
 GRANT ALL PRIVILEGES ON employeeDB.* TO 'user'@'localhost';
 -- FLUSH PRIVILEGES;
 
