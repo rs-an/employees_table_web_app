@@ -62,7 +62,12 @@ function validId(id) {
 }
 function validate(event) {
     if (!event || typeof event !== 'object' || Array.isArray(event)) return false;
-    if (event.type === 'addRow') return true;
+    if (event.requestId !== undefined && (typeof event.requestId !== 'string' || event.requestId.length > 64)) return false;
+    if (event.type === 'addRow') {
+        if (event.employee === undefined) return true; // Existing clients can still add an empty row.
+        return validChanges(event.employee) && fields.every(field => Object.hasOwn(event.employee, field));
+    }
+    if (event.type === 'updateEmployee') return validId(event.id) && validChanges(event.changes);
     if (!validId(event.id)) return false;
     if (event.type === 'removeRow') return true;
     if (event.type !== 'replaceData' || !fields.includes(event.destination)) return false;
@@ -75,6 +80,11 @@ function validate(event) {
         if (Number.isNaN(date.getTime()) || date.toISOString().slice(0, 10) !== event.data) return false;
     }
     return true;
+}
+function validChanges(changes) {
+    return changes !== null && typeof changes === 'object' && !Array.isArray(changes)
+        && Object.keys(changes).length > 0
+        && Object.entries(changes).every(([destination, data]) => validate({ type: 'replaceData', id: 1, destination, data }));
 }
 // A single queue keeps snapshots and writes in the same order for every client.
 let queue = Promise.resolve();
@@ -99,19 +109,29 @@ wss.on('connection', ws => {
             return;
         }
         if (!ws.initialized || !validate(event)) {
-            send(ws, { type: 'error', message: 'Проверьте данные: максимум 32 символа, корректный email и дата ГГГГ-ММ-ДД.' });
+            send(ws, { type: 'error', message: 'Проверьте данные: максимум 32 символа, корректный email и дата ДД-ММ-ГГГГ.' });
             return;
         }
         enqueue(ws, async () => {
             if (event.type === 'addRow') {
                 const [result] = await pool.execute(
                     'INSERT INTO employees (name, middle_name, surname, department, position, birthday, tel, email) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-                    fields.map(() => '')
+                    fields.map(field => event.employee?.[field] || '')
                 );
-                broadcast({ type: 'addRow', employee: { id: result.insertId, ...Object.fromEntries(fields.map(field => [field, ''])) } });
+                broadcast({ type: 'addRow', employee: { id: result.insertId, ...Object.fromEntries(fields.map(field => [field, event.employee?.[field] || ''])) }, requestId: event.requestId });
             } else if (event.type === 'removeRow') {
                 await pool.execute('DELETE FROM employees WHERE id = ?', [event.id]);
-                broadcast({ type: 'removeRow', id: event.id });
+                broadcast({ type: 'removeRow', id: event.id, requestId: event.requestId });
+            } else if (event.type === 'updateEmployee') {
+                // All column names and values have passed the same validation as individual edits.
+                const columns = Object.keys(event.changes);
+                const assignments = columns.map(column => `\`${column}\` = ?`).join(', ');
+                const [result] = await pool.execute(`UPDATE employees SET ${assignments} WHERE id = ?`, [...Object.values(event.changes), event.id]);
+                if (!result.affectedRows) {
+                    send(ws, { type: 'error', message: 'Сотрудник уже удалён. Обновите справочник.' });
+                    return;
+                }
+                broadcast({ type: 'updateEmployee', id: event.id, changes: event.changes, requestId: event.requestId });
             } else {
                 // The column name has been checked against a fixed allowlist above.
                 const [result] = await pool.execute(`UPDATE employees SET \`${event.destination}\` = ? WHERE id = ?`, [event.data, event.id]);
