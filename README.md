@@ -13,6 +13,16 @@
 
 </details>
 
+## Текущий интерфейс
+
+Список сотрудников с поиском и фильтром по отделам:
+
+![Список сотрудников](docs/screenshots/employees-table.png)
+
+Форма добавления сотрудника:
+
+![Форма добавления сотрудника](docs/screenshots/employee-form.png)
+
 ## Быстрый запуск через Docker
 
 Требуется запущенный Docker Desktop с Docker Compose.
