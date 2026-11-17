@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Справочник сотрудников</title>
+    <link rel="stylesheet" href="/vendor/datatables.css">
+    <link rel="stylesheet" href="/public/style/styles.css">
+    <script defer src="/vendor/jquery.js"></script>
+    <script defer src="/vendor/datatables.js"></script>
+    <script defer src="/public/script/script.js"></script>
+</head>
+<body>
+    <main class="container">
+        <h1>Справочник сотрудников</h1>
+        <p>Редактируйте поля прямо в таблице. Фамилия, имя и отчество сохраняются отдельно.</p>
+        <p id="status" role="status">Подключение…</p>
+        <p id="message" role="alert"></p>
+        <button id="addRow" disabled>Добавить сотрудника</button>
+        <button id="button" disabled>Удалить выбранного</button>
+        <div class="table-scroll"><table id="example" class="display"><thead></thead><tbody></tbody></table></div>
+    </main>
+</body>
+</html>

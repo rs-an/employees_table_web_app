@@ -1,12 +1,13 @@
-
-CREATE DATABASE employeeDB;
-
-CREATE USER 'angelina'@'localhost' IDENTIFIED BY '12345test';
-GRANT ALL PRIVILEGES ON employeeDB.* TO 'user'@'localhost';
--- FLUSH PRIVILEGES;
-
--- SHOW GRANTS FOR 'user'@'localhost';
-
-USE employeeDB;
-
-CREATE TABLE employees (id int AUTO_INCREMENT, name varchar(32), middle_name varchar(32), surname varchar(32), department varchar(32), position varchar(32), birthday varchar(32),tel varchar(32),email varchar(32), PRIMARY KEY (id)) DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+-- The database and application user are created by the MySQL Docker image.
+-- With an existing MySQL installation, select the target database before importing.
+CREATE TABLE IF NOT EXISTS employees (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(32) NOT NULL DEFAULT '',
+    middle_name VARCHAR(32) NOT NULL DEFAULT '',
+    surname VARCHAR(32) NOT NULL DEFAULT '',
+    department VARCHAR(32) NOT NULL DEFAULT '',
+    position VARCHAR(32) NOT NULL DEFAULT '',
+    birthday VARCHAR(32) NOT NULL DEFAULT '',
+    tel VARCHAR(32) NOT NULL DEFAULT '',
+    email VARCHAR(32) NOT NULL DEFAULT ''
+) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
