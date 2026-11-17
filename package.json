@@ -1,8 +1,21 @@
 {
-    "dependencies": {
-        "ejs": "^3.1.6",
-        "express": "^4.17.1",
-        "mysql2": "^2.2.5",
-        "ws": "^7.4.5"
-    }
+  "name": "employees-table-web-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Локальный справочник сотрудников с синхронизацией через WebSocket",
+  "engines": {
+    "node": ">=22.9.0"
+  },
+  "scripts": {
+    "start": "node --env-file-if-exists=.env app.js",
+    "check": "node --check app.js && node --check public/script/script.js"
+  },
+  "dependencies": {
+    "datatables.net": "2.3.8",
+    "datatables.net-dt": "2.3.8",
+    "express": "5.3.0",
+    "jquery": "3.8.0",
+    "mysql2": "3.24.6",
+    "ws": "8.23.0"
+  }
 }
